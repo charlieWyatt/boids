@@ -6,6 +6,7 @@ import math
 from boidTypes.boid import Boid
 from boidTypes.avgColBoid import AvgColBoid
 from boidTypes.neighborColBoid import NeighborColBoid
+from boidTypes.VelColBoid import VelColBoid
 
 
 from predator import Predator
@@ -13,10 +14,11 @@ from predator import Predator
 boid_types = {
     "Boid": Boid,
     "AvgColBoid": AvgColBoid,
-    "NeighborColBoid": NeighborColBoid
+    "NeighborColBoid": NeighborColBoid,
+    "VelColBoid": VelColBoid,
 }
 
-BOID_TYPE = "NeighborColBoid" # the desired boid for the session
+BOID_TYPE = "VelColBoid" # the desired boid for the session
 
 def create_boid(x, y, screen, boid_type=BOID_TYPE):
     return boid_types[boid_type](x, y, screen)
@@ -26,7 +28,7 @@ def create_boid(x, y, screen, boid_type=BOID_TYPE):
 pygame.init()
 pygame.font.init()  # Initialize the font module
 font = pygame.font.SysFont(None, 24)  # Create a font object with default font and size 24
-width, height = 800, 600
+width, height = 1400, 800
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 
