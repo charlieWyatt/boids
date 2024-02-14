@@ -14,22 +14,16 @@ class Boid:
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
         self.max_speed = 4
         self.max_force = 0.1
+        self.screen = screen
         self.screen_width, self.screen_height = screen.get_width(), screen.get_height()
         self.neighbours = {}
         self.colour = (255, 255, 255)
-
+        
     def update(self):
         self.position += self.velocity
         # Add simple wrapping around the screen
         self.position.x %= self.screen_width
         self.position.y %= self.screen_height
-        if self.neighbours.values():
-            # Calculate colour based on the maximum neighbour value
-            max_neighbour_value = max(self.neighbours.values())
-            self.colour = (255, 255, max(0, 255 - 255 * max_neighbour_value / 100))
-        else:
-            # Set a default colour or handle the case when there are no neighbours
-            self.colour = (255, 255, 255)  # Default colour, e.g., white
 
     def show(self, screen):
         pygame.draw.circle(screen, self.colour, (int(self.position.x), int(self.position.y)), 2)
@@ -97,6 +91,7 @@ class Boid:
             if separation_steering.length() > 0:
                 separation_steering = (separation_steering / total_nearby).normalize() * self.max_speed
             separation_steering = limit(separation_steering - self.velocity, self.max_force)
+
 
         self.velocity += alignment_steering + cohesion_steering + separation_steering
         self.velocity = limit(self.velocity, self.max_speed)

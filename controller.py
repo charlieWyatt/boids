@@ -3,8 +3,24 @@ import sys
 import random
 import math
 
-from boid import Boid
+from boidTypes.boid import Boid
+from boidTypes.avgColBoid import AvgColBoid
+from boidTypes.neighborColBoid import NeighborColBoid
+
+
 from predator import Predator
+
+boid_types = {
+    "Boid": Boid,
+    "AvgColBoid": AvgColBoid,
+    "NeighborColBoid": NeighborColBoid
+}
+
+BOID_TYPE = "NeighborColBoid" # the desired boid for the session
+
+def create_boid(x, y, screen, boid_type=BOID_TYPE):
+    return boid_types[boid_type](x, y, screen)
+
 
 # Initialize Pygame
 pygame.init()
@@ -17,7 +33,7 @@ clock = pygame.time.Clock()
 print(screen.get_width(), screen.get_height())
 
 # Boids list
-boids = [Boid(random.randint(0, width), random.randint(0, height), screen) for _ in range(50)]
+boids = [create_boid(random.randint(0, width), random.randint(0, height), screen) for _ in range(50)]
 
 predators = []  # List to store predators
 
@@ -31,7 +47,7 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             if event.button == 1:  # Left click for Boid
-                boids.append(Boid(x, y, screen))
+                boids.append(create_boid(x, y, screen))
             elif event.button == 3:  # Right click for Predator
                 predators.append(Predator(x, y, screen))
 

@@ -4,7 +4,7 @@ import random
 import math
 
 
-from boid import Boid
+from boidTypes.boid import Boid
 
 class Predator(Boid):
     def __init__(self, x, y, screen):
