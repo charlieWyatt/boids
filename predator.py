@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import math
+import numpy as np
 
 
 from boidTypes.boid import Boid
@@ -18,6 +19,13 @@ class Predator(Boid):
     def show(self, screen):
         pygame.draw.circle(screen, (255, 0, 0), (int(self.position.x), int(self.position.y)), max(2, self.size))
 
+    def accelerate(self, acceleration):
+        # Assuming self.velocity is a numpy array or similar that supports element-wise addition
+        self.velocity += acceleration
+        # Check if the velocity exceeds the maximum speed
+        if np.linalg.norm(self.velocity) > self.max_speed:
+            # Normalize the velocity vector and scale it to max_speed
+            self.velocity = (self.velocity / np.linalg.norm(self.velocity)) * self.max_speed
 
     def hunt(self, boids):
         closest = None

@@ -78,20 +78,25 @@ class Boid:
         
 
         if total_nearby > 0:
-            # alignment
-            if alignment_steering.length() > 0:
+            # Alignment
+            if alignment_steering.length_squared() > 0:  # Use length_squared() to avoid calculating the square root unnecessarily
                 alignment_steering = (alignment_steering / total_nearby).normalize() * self.max_speed
             alignment_steering = limit(alignment_steering - self.velocity, self.max_force)
 
-            # cohesion
-            cohesion_steering = ((cohesion_steering / total_nearby) - self.position).normalize() * self.max_speed if cohesion_steering.length() > 0 else cohesion_steering
+            # Cohesion
+            if cohesion_steering.length_squared() > 0:
+                average_position = cohesion_steering / total_nearby
+                direction_to_average = average_position - self.position
+                if direction_to_average.length_squared() > 0:
+                    cohesion_steering = direction_to_average.normalize() * self.max_speed
+                else:
+                    cohesion_steering = pygame.Vector2(0, 0)  # Handle the case when the direction is a zero vector
             cohesion_steering = limit(cohesion_steering - self.velocity, self.max_force)
 
-            # separation
-            if separation_steering.length() > 0:
+            # Separation
+            if separation_steering.length_squared() > 0:
                 separation_steering = (separation_steering / total_nearby).normalize() * self.max_speed
             separation_steering = limit(separation_steering - self.velocity, self.max_force)
-
 
         self.velocity += alignment_steering + cohesion_steering + separation_steering
         self.velocity = limit(self.velocity, self.max_speed)
