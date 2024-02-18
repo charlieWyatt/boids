@@ -9,21 +9,19 @@ class PredatorEnv(gym.Env):
     metadata = {'render_modes': ['human', 'rgb_array'], 'render_fps': 30}
 
     def __init__(self, render_mode=None):
+        
         super(PredatorEnv, self).__init__()
         self.render_mode = render_mode
-        pygame.init()
-        pygame.font.init()  # Initialize the font module
-        self.font = pygame.font.SysFont(None, 24)  # Create a font object with default font and size 24
-        self.width, self.height = 1400, 800
+        self.width, self.height = 800, 800
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
 
         self.starting_boids = 50
         self.starting_predators = 1 
-        self.max_objects = 100  # Maximum number of boids and predators combined
+        self.max_objects = 51  # Maximum number of boids and predators combined
 
         # Define a continuous action space where each action is a 2D vector for acceleration
-        self.action_space = spaces.Box(low=-10, high=10, shape=(2,), dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-10.0, -10.0]), high=np.array([10, 10]), shape=(2,), dtype=np.float32)
 
         
 
@@ -40,24 +38,40 @@ class PredatorEnv(gym.Env):
 
     def step(self, action):
         # Implement the action logic here
+        # print(action)
+        
         self.predator.accelerate(action)
-
+        
         self._update_game_state()
+        
 
         # Calculate the observation
         observation = self._get_observation()
 
+
+               
+
         # Reward is +1 for surviving a step
-        reward = 1
+        # reward = 1
+
+        reward = 0
+        if self.predator.eat(self.boids):
+            # Implement logic for what happens when a predator eats a boid
+            reward += 50  # Example reward for eating a boid
+
+        min_dist_to_boid = np.inf
+        for boid in self.boids:
+            dist = -np.linalg.norm(self.predator.position - boid.position)
+            if dist < min_dist_to_boid:
+                min_dist_to_boid = dist 
+        distance_penalty = min_dist_to_boid
+        reward += distance_penalty
 
         # Check if the game is over (e.g., predator dies or some end condition is met)
-        if len(self.predators) == 0:
-            done = True
-        else:
-            done = False  # You'll need to implement logic to set this appropriately
+        done = len(self.predators) == 0
 
-        info = {}  # Additional data, not used here but required by Gym's interface
-        truncated = done
+        info = {"terminated": done, "truncated": False}  # Adjust based on your game logic
+        truncated = False
         return observation, reward, done, truncated, info
 
     def reset(self, seed=None, options=None):
@@ -71,6 +85,11 @@ class PredatorEnv(gym.Env):
         return self._get_observation(), {}
 
     def render(self, mode='human'):
+        pygame.init()
+        pygame.font.init()  # Initialize the font module
+        self.font = pygame.font.SysFont(None, 24)  # Create a font object with default font and size 24
+        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.close()
@@ -103,10 +122,11 @@ class PredatorEnv(gym.Env):
         # Compile the observation data from the positions and velocities of boids and predators
         # This should return a flat array containing all position and velocity data
         observation = []
-        for boid in self.boids:
-            observation.append([boid.position[0], boid.position[1], boid.velocity[0], boid.velocity[1]])
         for predator in self.predators:
             observation.append([predator.position[0], predator.position[1], predator.velocity[0], predator.velocity[1]])
+        for boid in self.boids:
+            observation.append([boid.position[0], boid.position[1], boid.velocity[0], boid.velocity[1]])
+        
         # Fill the rest of the observation array with zeros if necessary
         while len(observation) < self.max_objects:
             observation.append([0, 0, 0, 0])
@@ -128,9 +148,10 @@ class PredatorEnv(gym.Env):
                 # Implement logic for what happens when a predator eats a boid
                 pass
 
-            # Calculate and apply hunting force
-            hunt_force = predator.hunt(self.boids)
-            predator.velocity += hunt_force
+            # # Calculate and apply hunting force
+            # hunt_force = predator.hunt(self.boids)
+            # predator.velocity += hunt_force
+            
             # Update the predator again, for example, to decrease its size over time
             predator.update()
 

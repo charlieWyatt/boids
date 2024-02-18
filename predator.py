@@ -10,7 +10,7 @@ from boidTypes.boid import Boid
 class Predator(Boid):
     def __init__(self, x, y, screen):
         super().__init__(x, y, screen)
-        self.size = 4  # Initial size
+        self.size = 8  # Initial size
         self.max_speed = 6
         self.max_force = 0.2
         self.shrink_rate = 0.01  # Rate at which the predator shrinks over time

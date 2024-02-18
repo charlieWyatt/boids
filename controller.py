@@ -40,7 +40,7 @@ if __name__ == "__main__":
     width, height = 1400, 800
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
-
+    
     print(screen.get_width(), screen.get_height())
 
     # Boids list
@@ -87,8 +87,6 @@ if __name__ == "__main__":
             boid.update()
             boid.show(screen)
         
-        
-
 
         #### Stats Display Logic #####
         # Display the count of boids and predators
